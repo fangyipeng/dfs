@@ -1,42 +1,55 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstring>
+#define max 100
 using namespace std;
-int a[5][5]={0},ans=0,r[5]={0},l[5]={0},u[10]={0},d1=0,d2=0;
-bool check(int i,int j){
-	if(i==3&&l[j]!=15) return 0;
-	if(j==3&&r[i]!=15) return 0;
-	if(i==3&&j==1&&d2!=15) return 0;
-	if(i==3&&j==3&&d1!=15) return 0;
-	return 1;
+
+int r[max],c[max],d1=0,d2=0;//r为行，c为列，d1为主对角线，d2为副对角线 
+int vis[max],M[max][max];
+int N=3,S=15;
+int cnt=0;
+
+
+bool check(int i,int j)
+{
+	if(i==N && c[j]!=S) return 0; 
+	if(j==N && r[i]!=S) return 0;
+	if(i==N && j==N && d1!=S) return 0;
+	if(i==N && j==1 && d2!=S) return 0;
+	return 1; 	
 }
-void s(int i,int j){
-	if(i>3){
-		ans++;
-	}
-	if(j>3){
-		s(i+1,1);
-	}
-	else{
-		for(int k=1;k<10;k++){
-			if(u[k]==0){
-				u[k]=1;
-				r[i]=r[i]+k;
-				l[j]=l[j]+k;
-				if(i==j) d1=d1+k;
-				if(i+j==4) d2=d2+k;
-				if(check(i,j)){
-					s(i,j+1);
-				}
-				u[k]=0;
-				r[i]=r[i]-k;
-				l[j]=l[j]-k;
-				if(i==j) d1=d1-k;
-				if(i+j==4) d2=d2-k;
-			}
-		}	
+
+void dfs(int i,int j) //i表示行，j表示列 
+{	
+	if(i>N) cnt++; 
+	else if(j>N) dfs(i+1,1);//本列已经放完,放下一列的第一个 
+	else for(M[i][j]=1;M[i][j]<=N*N;M[i][j]++) 
+	{	
+		if(vis[M[i][j]]==0)//没用过 
+		{
+			vis[M[i][j]]=1;//用过的数标记一下 
+			r[i]=r[i]+M[i][j];
+			c[j]=c[j]+M[i][j];
+			if(i-j==0) d1=d1+M[i][j];
+			if(i+j==N+1) d2=d2+M[i][j];
+
+			if(check(i,j)) dfs(i,j+1);
+			
+			vis[M[i][j]]=0;
+			r[i]=r[i]-M[i][j];
+			c[j]=c[j]-M[i][j];
+			if(i-j==0) d1=d1-M[i][j];
+			if(i+j==N+1) d2=d2-M[i][j];		
+		}		
 	}
 }
 
 int main(){
-	s(1,1);
-	cout<<ans<<endl;
+	memset(r,0,sizeof(r));
+	memset(c,0,sizeof(c));
+	memset(vis,0,sizeof(vis));
+	memset(M,0,sizeof(M));
+	
+	dfs(1,1);
+	cout<<cnt;
+	return 0;
 }
